@@ -1,0 +1,6 @@
+@Esp32Backend_HostAddress = http://localhost:5147
+
+GET {{Esp32Backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
