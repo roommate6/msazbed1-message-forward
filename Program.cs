@@ -1,5 +1,7 @@
 using Microsoft.Azure.Devices;
 using Esp32Backend.Services;
+using Azure.Core;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,14 @@ var connectionString = "HostName=iothub67.azure-devices.net;SharedAccessKeyName=
 
 builder.Services.AddSingleton(_ =>
     ServiceClient.CreateFromConnectionString(connectionString));
+
+builder.Services.AddSingleton<TokenCredential>(_ =>
+{
+    if (builder.Environment.IsDevelopment())
+        return new AzureCliCredential();
+
+    return new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned);
+});
 
 var app = builder.Build();
 

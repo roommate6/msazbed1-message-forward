@@ -8,6 +8,7 @@ using Azure.Identity;
 using OpenAI;
 using OpenAI.Responses;
 using Esp32Backend.Services;
+using Azure.Core;
 
 namespace Esp32Backend.Controllers;
 
@@ -20,11 +21,13 @@ public class DevicesController : ControllerBase
 
     private readonly ServiceClient _serviceClient;
     private readonly TelemetryMessageStore _telemetryMessageStore;
+    private readonly TokenCredential _tokenCredential;
 
-    public DevicesController(ServiceClient serviceClient, TelemetryMessageStore telemetryMessageStore)
+    public DevicesController(ServiceClient serviceClient, TelemetryMessageStore telemetryMessageStore, TokenCredential tokenCredential)
     {
         _serviceClient = serviceClient;
         _telemetryMessageStore = telemetryMessageStore;
+        _tokenCredential = tokenCredential;
     }
 
     [HttpGet("telemetry")]
@@ -42,7 +45,7 @@ public class DevicesController : ControllerBase
     {
 #pragma warning disable OPENAI001
 
-        AIProjectClient projectClient = new(endpoint: new Uri(endpoint), tokenProvider: new AzureCliCredential());
+        AIProjectClient projectClient = new(endpoint: new Uri(endpoint), tokenProvider: _tokenCredential);
 
         ProjectResponsesClient agentClient =
             projectClient.ProjectOpenAIClient.GetProjectResponsesClientForAgentEndpoint(agentName);
