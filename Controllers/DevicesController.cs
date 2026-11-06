@@ -7,6 +7,7 @@ using Azure.AI.Extensions.OpenAI;
 using Azure.Identity;
 using OpenAI;
 using OpenAI.Responses;
+using Esp32Backend.Services;
 
 namespace Esp32Backend.Controllers;
 
@@ -16,13 +17,22 @@ public class DevicesController : ControllerBase
 {
     const string endpoint = "https://fplaystefan-4447-resource.services.ai.azure.com/api/projects/fplaystefan-4447";
     const string agentName = "emotion-number";
-    const string userMessage = "Hi emotion-number";
 
     private readonly ServiceClient _serviceClient;
+    private readonly TelemetryMessageStore _telemetryMessageStore;
 
-    public DevicesController(ServiceClient serviceClient)
+    public DevicesController(ServiceClient serviceClient, TelemetryMessageStore telemetryMessageStore)
     {
         _serviceClient = serviceClient;
+        _telemetryMessageStore = telemetryMessageStore;
+    }
+
+    [HttpGet("telemetry")]
+    public IActionResult GetTelemetry()
+    {
+        var messages = _telemetryMessageStore.GetAll();
+
+        return Ok(messages);
     }
 
     [HttpPost("{deviceId}/message")]
@@ -54,7 +64,7 @@ public class DevicesController : ControllerBase
             projectClient.ProjectOpenAIClient.GetProjectResponsesClientForAgentEndpoint(
                 agentName, defaultConversationId: conversation.Id);
 
-        ResponseResult response = responseClient.CreateResponse(userMessage);
+        ResponseResult response = responseClient.CreateResponse(messageText);
 
         Console.WriteLine(response.GetOutputText());
 

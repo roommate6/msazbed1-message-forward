@@ -1,4 +1,5 @@
 using Microsoft.Azure.Devices;
+using Esp32Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,11 +7,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// var connectionString =
-//     builder.Configuration["IoTHub:ConnectionString"]
-//     ?? throw new InvalidOperationException(
-//         "Missing IoTHub connection string.");
+builder.Services.AddSingleton<TelemetryMessageStore>();
+builder.Services.AddHostedService<IoTHubTelemetryReader>();
 
 var connectionString = "HostName=iothub67.azure-devices.net;SharedAccessKeyName=Backend;SharedAccessKey=iQVoqLb20AU9LM6oA+UMx7dQ5TEAT7/42AIoTCdGc4s=";
 
