@@ -40,14 +40,6 @@ public class DevicesController : ControllerBase
         string deviceId,
         [FromBody] string messageText)
     {
-        using Message message = new(Encoding.UTF8.GetBytes(messageText))
-        {
-            ContentType = "text/plain",
-            ContentEncoding = "utf-8"
-        };
-
-        await _serviceClient.SendAsync(deviceId, message);
-
 #pragma warning disable OPENAI001
 
         AIProjectClient projectClient = new(endpoint: new Uri(endpoint), tokenProvider: new AzureCliCredential());
@@ -65,6 +57,14 @@ public class DevicesController : ControllerBase
                 agentName, defaultConversationId: conversation.Id);
 
         ResponseResult response = responseClient.CreateResponse(messageText);
+
+        using Message message = new(Encoding.UTF8.GetBytes(response.GetOutputText()))
+        {
+            ContentType = "text/plain",
+            ContentEncoding = "utf-8"
+        };
+
+        await _serviceClient.SendAsync(deviceId, message);
 
         Console.WriteLine(response.GetOutputText());
 
