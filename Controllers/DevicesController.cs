@@ -16,18 +16,18 @@ namespace Esp32Backend.Controllers;
 [Route("api/[controller]")]
 public class DevicesController : ControllerBase
 {
-    const string endpoint = "https://fplaystefan-4447-resource.services.ai.azure.com/api/projects/fplaystefan-4447";
-    const string agentName = "emotion-number";
+    // const string endpoint = "https://fplaystefan-4447-resource.services.ai.azure.com/api/projects/fplaystefan-4447";
+    // const string agentName = "emotion-number";
 
     private readonly ServiceClient _serviceClient;
     private readonly TelemetryMessageStore _telemetryMessageStore;
-    private readonly TokenCredential _tokenCredential;
+    // private readonly TokenCredential _tokenCredential;
 
-    public DevicesController(ServiceClient serviceClient, TelemetryMessageStore telemetryMessageStore, TokenCredential tokenCredential)
+    public DevicesController(ServiceClient serviceClient, TelemetryMessageStore telemetryMessageStore/*, TokenCredential tokenCredential*/)
     {
         _serviceClient = serviceClient;
         _telemetryMessageStore = telemetryMessageStore;
-        _tokenCredential = tokenCredential;
+        // _tokenCredential = tokenCredential;
     }
 
     [HttpGet("telemetry")]
@@ -43,25 +43,25 @@ public class DevicesController : ControllerBase
         string deviceId,
         [FromBody] string messageText)
     {
-#pragma warning disable OPENAI001
+// #pragma warning disable OPENAI001
 
-        AIProjectClient projectClient = new(endpoint: new Uri(endpoint), tokenProvider: _tokenCredential);
+//         AIProjectClient projectClient = new(endpoint: new Uri(endpoint), tokenProvider: _tokenCredential);
 
-        ProjectResponsesClient agentClient =
-            projectClient.ProjectOpenAIClient.GetProjectResponsesClientForAgentEndpoint(agentName);
+//         ProjectResponsesClient agentClient =
+//             projectClient.ProjectOpenAIClient.GetProjectResponsesClientForAgentEndpoint(agentName);
 
-        ProjectConversationsClient conversationClient = new(
-            agentClient.Pipeline,
-            new OpenAIClientOptions { Endpoint = agentClient.Endpoint });
-        ProjectConversation conversation = conversationClient.CreateProjectConversation();
+//         ProjectConversationsClient conversationClient = new(
+//             agentClient.Pipeline,
+//             new OpenAIClientOptions { Endpoint = agentClient.Endpoint });
+//         ProjectConversation conversation = conversationClient.CreateProjectConversation();
 
-        ProjectResponsesClient responseClient =
-            projectClient.ProjectOpenAIClient.GetProjectResponsesClientForAgentEndpoint(
-                agentName, defaultConversationId: conversation.Id);
+//         ProjectResponsesClient responseClient =
+//             projectClient.ProjectOpenAIClient.GetProjectResponsesClientForAgentEndpoint(
+//                 agentName, defaultConversationId: conversation.Id);
 
-        ResponseResult response = responseClient.CreateResponse(messageText);
+//         ResponseResult response = responseClient.CreateResponse(messageText);
 
-        using Message message = new(Encoding.UTF8.GetBytes(response.GetOutputText()))
+        using Message message = new(Encoding.UTF8.GetBytes(messageText/*response.GetOutputText()*/))
         {
             ContentType = "text/plain",
             ContentEncoding = "utf-8"
@@ -69,8 +69,8 @@ public class DevicesController : ControllerBase
 
         await _serviceClient.SendAsync(deviceId, message);
 
-        Console.WriteLine(response.GetOutputText());
+        //Console.WriteLine(response.GetOutputText());
 
-        return Ok(response.GetOutputText());
+        return Ok(/*response.GetOutputText()*/);
     }
 }
